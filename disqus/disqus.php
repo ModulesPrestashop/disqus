@@ -1,4 +1,29 @@
 <?php
+/**
+* 2007-2014 PrestaShop
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License (AFL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+* If you did not receive a copy of the license and are unable to
+* obtain it through the world-wide-web, please send an email
+* to license@prestashop.com so we can send you a copy immediately.
+*
+* DISCLAIMER
+*
+* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+* versions in the future. If you wish to customize PrestaShop for your
+* needs please refer to http://www.prestashop.com for more information.
+*
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-2014 PrestaShop SA
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*  International Registered Trademark & Property of PrestaShop SA
+*/
+
 if (!defined('_PS_VERSION_'))
   exit;
  
@@ -16,7 +41,7 @@ class Disqus extends Module
 	 
 		parent::__construct();
 	 
-		$this->displayName = $this->l('My module');
+		$this->displayName = $this->l('Disqus');
 		$this->description = $this->l('Disqus script for comments');
 	 
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
@@ -30,7 +55,7 @@ class Disqus extends Module
 		if (Shop::isFeatureActive())
 			Shop::setContext(Shop::CONTEXT_ALL);
 
-		if (!parent::install() && !$this->registerHook('displayFooterProduct'))
+		if (!parent::install() && !$this->registerHook('productfooter'))
 			return false;
 		return true;
 	}
@@ -49,7 +74,7 @@ class Disqus extends Module
 		if (Tools::isSubmit('submit'.$this->name))
 		{
 			$DISQUS_NAME = strval(Tools::getValue('DISQUS_NAME'));
-			if (!$ b  || empty($m b) || !Validate::isGenericName($ b))
+			if (!$DISQUS_NAME  || empty($DISQUS_NAME) || !Validate::isGenericName($DISQUS_NAME))
 				$output .= $this->displayError( $this->l('Invalid Configuration value') );
 			else
 			{
@@ -101,7 +126,7 @@ class Disqus extends Module
 		$helper->show_toolbar = true;        // false -> remove toolbar
 		$helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
 		$helper->submit_action = 'submit'.$this->name;
-		$helper->toolbar_btn = array(
+		/*$helper->toolbar_btn = array(
 			'save' =>
 			array(
 				'desc' => $this->l('Save'),
@@ -112,7 +137,7 @@ class Disqus extends Module
 				'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
 				'desc' => $this->l('Back to list')
 			)
-		);
+		);*/
 
 		// Load current value
 		$helper->fields_value['DISQUS_NAME'] = Configuration::get('DISQUS_NAME');
@@ -123,9 +148,14 @@ class Disqus extends Module
 	public function hookDisplayFooterProduct($params)
 	{
 		$this->context->smarty->assign(array(
-			'my_module_name' => Configuration::get('DISQUS_NAME')
+			'DISQUS_NAME' => Configuration::get('DISQUS_NAME')
 			));
 
 		return $this->display(__FILE__, 'productfooter.tpl');
+	}
+
+	public function hookDisplayHome($params)
+	{
+		return $this->hookDisplayFooterProduct();
 	}
 }
